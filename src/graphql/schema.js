@@ -18,6 +18,16 @@ const typeDefs = gql`
     createdAt: String
     updatedAt: String
   }
+  type BookStats {
+    _id: String
+    total: Int
+    latestYear: Int
+  }
+
+  extend type Query {
+    books(search: String, genre: String, sortByYear: String, limit: Int, skip: Int): [Book]
+    bookStatsByGenre: [BookStats]
+  }
 
   input CreateUserInput {
     name: String!

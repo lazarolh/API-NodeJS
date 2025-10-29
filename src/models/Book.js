@@ -1,13 +1,34 @@
 const mongoose = require('mongoose');
-const { Schema } = mongoose;
 
-const bookSchema = new Schema({
-  user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-  title: { type: String, required: [true, 'El título es obligatorio'] },
-  author: { type: String, required: [true, 'El autor es obligatorio'] }
-}, { timestamps: true });
+const bookSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: [true, 'El título es obligatorio'],
+    trim: true,
+  },
+  author: {
+    type: String,
+    required: [true, 'El autor es obligatorio'],
+    trim: true,
+  },
+  genre: {
+    type: String,
+    enum: ['Ficción', 'No Ficción', 'Ciencia', 'Fantasía', 'Historia', 'Otro'],
+    default: 'Otro',
+  },
+  year: {
+    type: Number,
+    min: [0, 'El año no puede ser negativo'],
+    max: [new Date().getFullYear(), 'El año no puede ser en el futuro'],
+  },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  }
+});
 
-// Índice compuesto para que un mismo usuario no agregue dos veces el mismo libro (título+autor).
-bookSchema.index({ user: 1, title: 1, author: 1 }, { unique: true });
+// Evita libros duplicados por usuario y título
+bookSchema.index({ user: 1, title: 1 }, { unique: true });
 
 module.exports = mongoose.model('Book', bookSchema);

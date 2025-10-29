@@ -20,6 +20,42 @@ const resolvers = {
       if (!user) throw new NotFoundError('Usuario no encontrado');
       return await Book.find({ user: userId }).lean();
     },
+    books: async (_,  { search, genre, sortByYear = "desc", limit = 10, skip = 0 }) => {
+      const filter = {};
+
+      if (search) {
+        filter.$or = [
+          { title: { $regex: search, $options: 'i' } },
+          { author: { $regex: search, $options: 'i' } }
+        ];
+      }
+
+      if (genre) {
+        filter.genre = genre;
+      }
+
+      const sort = sortByYear === "asc" ? { year: 1 } : { year: -1 };
+
+      return await Book.find(filter)
+        .sort(sort)
+        .skip(skip)
+        .limit(limit)
+        .populate('user', 'name email')
+        .lean();
+    },
+
+    bookStatsByGenre: async () => {
+    return await Book.aggregate([
+      {
+        $group: {
+          _id: "$genre",
+          total: { $sum: 1 },
+          latestYear: { $max: "$year" },
+        }
+      },
+      { $sort: { total: -1 } }
+    ]);
+    },
 
     book: async (_, { id }) => {
       const book = await Book.findById(id).lean();
@@ -33,7 +69,7 @@ const resolvers = {
       try {
         const user = new User(input);
         await user.save();
-        return user.toObject(); // ✅ devolvemos objeto plano
+        return user.toObject(); // Devolución de objeto plano
       } catch (err) {
         if (err.code === 11000) throw new ValidationError('Email ya registrado');
         throw new ValidationError(err.message);
@@ -45,7 +81,7 @@ const resolvers = {
         const user = await User.findByIdAndUpdate(id, input, {
           new: true,
           runValidators: true,
-          lean: true // ✅ para devolver objeto simple
+          lean: true // Para devolver objeto simple
         });
         if (!user) throw new NotFoundError('Usuario no encontrado');
         return user;
@@ -103,7 +139,7 @@ const resolvers = {
     }
   },
 
-  // ✅ resolvers de relaciones
+  // Resolvers de relaciones
   User: {
     books: async (parent) => {
       return await Book.find({ user: parent._id }).lean();
