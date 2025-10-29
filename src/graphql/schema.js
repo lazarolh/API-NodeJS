@@ -50,11 +50,17 @@ const typeDefs = gql`
   input CreateBookInput {
     title: String!
     author: String!
+    genre: String!
+    year: Int
+
   }
 
   input UpdateBookInput {
     title: String
     author: String
+    genre: String
+    year: Int
+
   }
 #Consultas
   type Query {
