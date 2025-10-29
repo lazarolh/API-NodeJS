@@ -15,6 +15,8 @@ const typeDefs = gql`
     title: String!
     author: String!
     user: User!
+    genre: String
+    year: Int
     createdAt: String
     updatedAt: String
   }
@@ -67,4 +69,4 @@ const typeDefs = gql`
   }
 `;
 
-module.exports = typeDefs;
+module.exports =  typeDefs;

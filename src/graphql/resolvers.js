@@ -4,7 +4,7 @@ const { NotFoundError, ValidationError } = require('../utils/errors');
 
 const resolvers = {
   Query: {
-    // Convertimos los resultados a objetos planos (evita el error "query was already executed")
+    // Convertimos los resultados a objetos planos (evitando el error "query was already executed")
     users: async () => {
       return await User.find({}).lean();
     },
