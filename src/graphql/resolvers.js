@@ -1,26 +1,33 @@
-//
+/**
+ * @file resolvers.js
+ * @description Define la lógica para las operaciones GraphQL.
+ * Contiene los resolvers de Queries y Mutations.
+ */
 const User = require('../models/user');
 const Book = require('../models/Book');
 const { NotFoundError, ValidationError } = require('../utils/errors');
 
 const resolvers = {
+  // Consultas
   Query: {
-    // Convertimos los resultados a objetos planos (evitando el error "query was already executed")
+    // Convertir los resultados a objetos planos evitando el error "query was already executed"
+    //Lista todos los usuarios
     users: async () => {
       return await User.find({}).lean();
     },
-
+    //Obtiene usuarios por ID.
     user: async (_, { id }) => {
       const user = await User.findById(id).lean();
       if (!user) throw new NotFoundError('Usuario no encontrado');
       return user;
     },
-
+    //Obtiene los libros relacionados a un usuario.
     booksByUser: async (_, { userId }) => {
       const user = await User.findById(userId).lean();
       if (!user) throw new NotFoundError('Usuario no encontrado');
       return await Book.find({ user: userId }).lean();
     },
+    //Busqueda de libros por filtración.
     books: async (_,  { search, genre, sortByYear = "desc", limit = 10, skip = 0 }) => {
       const filter = {};
 
@@ -44,7 +51,7 @@ const resolvers = {
         .populate('user', 'name email')
         .lean();
     },
-
+    //Busca libros por género.
     bookStatsByGenre: async () => {
     return await Book.aggregate([
       {
@@ -57,14 +64,14 @@ const resolvers = {
       { $sort: { total: -1 } }
     ]);
     },
-
+    //Obtiene libro por ID.
     book: async (_, { id }) => {
       const book = await Book.findById(id).lean();
       if (!book) throw new NotFoundError('Libro no encontrado');
       return book;
     }
   },
-
+  //Crea un nuevo usuario.
   Mutation: {
     createUser: async (_, { input }) => {
       try {
@@ -76,7 +83,7 @@ const resolvers = {
         throw new ValidationError(err.message);
       }
     },
-
+    //Actualiza los datos de un usuario.
     updateUser: async (_, { id, input }) => {
       try {
         const user = await User.findByIdAndUpdate(id, input, {
@@ -91,7 +98,7 @@ const resolvers = {
         throw new ValidationError(err.message);
       }
     },
-
+    //Elimina los datos de un usuario.
     deleteUser: async (_, { id }) => {
       const user = await User.findById(id);
       if (!user) throw new NotFoundError('Usuario no encontrado');
@@ -101,7 +108,7 @@ const resolvers = {
       await user.deleteOne();
       return true;
     },
-
+    //Crea un libro y lo asocia a un usuario.
     createBook: async (_, { userId, input }) => {
       const user = await User.findById(userId);
       if (!user) throw new NotFoundError('Usuario no encontrado');
@@ -115,7 +122,7 @@ const resolvers = {
         throw new ValidationError(err.message);
       }
     },
-
+    //Actualiza un libro.
     updateBook: async (_, { id, input }) => {
       try {
         const book = await Book.findByIdAndUpdate(id, input, {
@@ -131,7 +138,7 @@ const resolvers = {
         throw new ValidationError(err.message);
       }
     },
-
+    //Borra los datos de un libro.
     deleteBook: async (_, { id }) => {
       const book = await Book.findById(id);
       if (!book) throw new NotFoundError('Libro no encontrado');

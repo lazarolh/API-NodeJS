@@ -1,3 +1,8 @@
+/**
+ * @file User.js
+ * @description Modelo Mongoose para usuarios.
+ * Define los campos, validaciones y restricciones del esquema User.
+ */
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 

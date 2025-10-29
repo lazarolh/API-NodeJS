@@ -1,4 +1,7 @@
-//
+/**
+ * @file Book.js
+ * @description Modelo Mongoose para libros asociados a usuarios.
+ */
 const mongoose = require('mongoose');
 
 const bookSchema = new mongoose.Schema({
@@ -29,7 +32,7 @@ const bookSchema = new mongoose.Schema({
   }
 });
 
-// Evita libros duplicados por usuario y también título
+// Evita libros duplicados por usuario y también título.
 bookSchema.index({ user: 1, title: 1 }, { unique: true });
 
 module.exports = mongoose.model('Book', bookSchema);
